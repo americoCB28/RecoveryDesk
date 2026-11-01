@@ -32,7 +32,7 @@ struct Completion {
 struct State {
     HWND window{}, status{}, progress{}, cancel_button{};
     HINSTANCE instance{};
-    HFONT regular{}, small{}, heading{}, title{}, brand{};
+    HFONT regular{}, small_font{}, heading{}, title{}, brand{};
     HBRUSH background{}, white{}, sidebar{};
     std::vector<HWND> children;
     SessionReport session;
@@ -100,8 +100,8 @@ void init_fonts() {
     SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(hc), &hc, 0); app.high_contrast = (hc.dwFlags & HCF_HIGHCONTRASTON) != 0;
     const auto make = [](int height, int weight) { return CreateFontW(-px(height), 0, 0, 0, weight, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI"); };
-    for (auto font : {app.regular, app.small, app.heading, app.title, app.brand}) if (font) DeleteObject(font);
-    app.regular = make(15, FW_NORMAL); app.small = make(12, FW_NORMAL); app.heading = make(21, FW_SEMIBOLD);
+    for (auto font : {app.regular, app.small_font, app.heading, app.title, app.brand}) if (font) DeleteObject(font);
+    app.regular = make(15, FW_NORMAL); app.small_font = make(12, FW_NORMAL); app.heading = make(21, FW_SEMIBOLD);
     app.title = make(31, FW_SEMIBOLD); app.brand = make(22, FW_BOLD);
     for (auto brush : {app.background, app.white, app.sidebar}) if (brush) DeleteObject(brush);
     app.background = CreateSolidBrush(surface()); app.white = CreateSolidBrush(app.high_contrast ? GetSysColor(COLOR_WINDOW) : RGB(255,255,255));
@@ -184,20 +184,20 @@ void render() {
     SetScrollInfo(app.window, SB_VERT, &scroll_info, TRUE);
     const int x = 274, w = width - x - 36;
     label(L"RecoveryDesk", 26, 32, 214, 32, app.brand);
-    label(L"RECUPERA CON CONFIANZA", 28, 72, 210, 20, app.small);
+    label(L"RECUPERA CON CONFIANZA", 28, 72, 210, 20, app.small_font);
     const std::array<std::wstring, 6> names{L"&Inicio", L"&1   Detectar equipo", L"&2   Opciones de acceso", L"&3   Proteger archivos", L"&4   Preparar USB", L"&5   Resultado e informe"};
     for (int i = 0; i < 6; ++i) {
         auto nav = button(names[i], nav_home + i, 20, 132 + i * 52, 222, 42);
         if (i == app.page) SendMessageW(nav, BM_SETSTYLE, BS_DEFPUSHBUTTON, TRUE);
         EnableWindow(nav, !app.busy);
     }
-    label(L"OFFLINE POR DISEÑO", 28, height - 150, 208, 20, app.small);
-    label(L"Código abierto · Apache-2.0\r\nVersión 0.1.0 · Alpha", 28, height - 122, 208, 52, app.small);
+    label(L"OFFLINE POR DISEÑO", 28, height - 150, 208, 20, app.small_font);
+    label(L"Código abierto · Apache-2.0\r\nVersión 0.1.0 · Alpha", 28, height - 122, 208, 52, app.small_font);
     const auto machine = app.session.device.machine.empty() ? L"Equipo pendiente de detectar" : text(app.session.device.machine);
-    label(machine + L"  /  " + (app.demo ? L"DEMOSTRACIÓN" : app.session.device.winpe ? L"USB · WinPE" : L"Windows · Este equipo"), x, 26, w, 25, app.small);
+    label(machine + L"  /  " + (app.demo ? L"DEMOSTRACIÓN" : app.session.device.winpe ? L"USB · WinPE" : L"Windows · Este equipo"), x, 26, w, 25, app.small_font);
     std::wstring selected = L"Instalación: ninguna seleccionada";
     if (!app.session.device.installations.empty()) selected = L"Instalación: " + text(app.session.device.installations.at(app.selected_installation).windows_path);
-    label(selected, x, 55, w, 24, app.small);
+    label(selected, x, 55, w, 24, app.small_font);
     const std::array<std::wstring,6> headings{L"Vuelve a tener el control.", L"Conoce el equipo antes de actuar.", L"Elige una ruta de recuperación.", L"Primero, protege lo importante.", L"Tu ayuda, lista para arrancar.", L"Un resultado claro y verificable."};
     label(headings[app.page], x, 108, w, 48, app.title);
     const int bottom = height - 94;
@@ -211,7 +211,7 @@ void render() {
         card(L"No puedo iniciar sesión", L"Distingue PIN, contraseña y BitLocker. Sigue la opción oficial adecuada.", action_signin, 245);
         card(L"Necesito proteger mis archivos", L"Copia a otro disco físico y comprueba cada archivo con SHA-256.", action_files, 365);
         card(L"Quiero diagnosticar el equipo", L"Consulta discos, cifrado e instalaciones de Windows sin modificar cuentas.", action_diagnostics, 485);
-        label(L"¿Tu laptop está bloqueada? Consulta la guía desde otra PC o prepara un USB para examinarla.\r\nUtiliza RecoveryDesk solo en equipos propios o con autorización de su propietario.", x, 620, w, 62, app.small);
+        label(L"¿Tu laptop está bloqueada? Consulta la guía desde otra PC o prepara un USB para examinarla.\r\nUtiliza RecoveryDesk solo en equipos propios o con autorización de su propietario.", x, 620, w, 62, app.small_font);
         break;
     }
     case detection: {
@@ -237,7 +237,7 @@ void render() {
             for (std::size_t i = 0; i < selected_guide->steps.size(); ++i) content += std::to_wstring(i + 1) + L". " + text(selected_guide->steps[i]) + L"\r\n\r\n";
             readonly(content, x, 310, w, std::max(155, bottom - 470));
             button(L"Abrir documentación oficial", action_official, x, bottom - 150, 270);
-            label(L"Revisada: " + text(selected_guide->reviewed_on) + L" · Necesita navegador e Internet", x + 286, bottom - 145, w - 286, 42, app.small);
+            label(L"Revisada: " + text(selected_guide->reviewed_on) + L" · Necesita navegador e Internet", x + 286, bottom - 145, w - 286, 42, app.small_font);
             readonly(text(selected_guide->source), x, bottom - 101, w, 30, false);
         }
         app.locked_volumes.clear(); std::vector<std::wstring> volumes;
@@ -248,19 +248,19 @@ void render() {
             app.selected_locked = std::min(app.selected_locked, int(volumes.size()) - 1);
             combo(volume_choice, x, bottom - 51, w - 250, volumes, app.selected_locked);
             button(L"Desbloquear con mi clave", action_unlock, x + w - 236, bottom - 55, 236);
-        } else label(L"El diagnóstico no ha confirmado volúmenes BitLocker bloqueados.", x, bottom - 48, w, 42, app.small);
+        } else label(L"El diagnóstico no ha confirmado volúmenes BitLocker bloqueados.", x, bottom - 48, w, 42, app.small_font);
         break;
     }
     case backup: {
         label(L"Selecciona carpetas concretas. El destino debe ser una carpeta vacía o un respaldo previo del mismo origen, en otro disco físico.", x, 165, w, 60);
-        label(L"ORIGEN · Solo archivos accesibles", x, 248, w, 24, app.small);
+        label(L"ORIGEN · Solo archivos accesibles", x, 248, w, 24, app.small_font);
         readonly(app.source.empty() ? L"Elige la carpeta que quieres proteger" : app.source.wstring(), x, 280, w - 182, 36, false);
         button(L"Elegir origen…", source_choose, x + w - 168, 279, 168);
-        label(L"DESTINO · Otra unidad física", x, 344, w, 24, app.small);
+        label(L"DESTINO · Otra unidad física", x, 344, w, 24, app.small_font);
         readonly(app.destination.empty() ? L"Elige una carpeta dedicada en tu disco externo" : app.destination.wstring(), x, 376, w - 182, 36, false);
         button(L"Elegir destino…", destination_choose, x + w - 168, 375, 168);
         label(L"Copia verificada con SHA-256\r\nLos archivos incompletos no se aceptan como correctos. Una sesión interrumpida puede reanudarse eligiendo las mismas carpetas.", x, 447, w, 80, app.heading);
-        label(L"Se omiten almacenes de credenciales, enlaces, EFS, archivos en uso y contenido cloud no descargado.\r\nEl manifiesto del respaldo contiene nombres de archivos: consérvalo junto a la copia.", x, 548, w, 70, app.small);
+        label(L"Se omiten almacenes de credenciales, enlaces, EFS, archivos en uso y contenido cloud no descargado.\r\nEl manifiesto del respaldo contiene nombres de archivos: consérvalo junto a la copia.", x, 548, w, 70, app.small_font);
         button(L"Iniciar / reanudar respaldo", action_backup, x, bottom - 50, 285, 42);
         break;
     }
@@ -272,7 +272,7 @@ void render() {
         readonly(requirements, x, 245, w, 112);
         button(L"Consultar instalación del ADK", action_adk, x, 375, 290);
         button(L"1. Preparar imagen local", media_prepare, x, 435, 280);
-        if (!app.media_work.empty()) label(L"Imagen preparada en:\r\n" + app.media_work.wstring(), x + 300, 434, w - 300, 64, app.small);
+        if (!app.media_work.empty()) label(L"Imagen preparada en:\r\n" + app.media_work.wstring(), x + 300, 434, w - 300, 64, app.small_font);
         app.usb_choices.clear(); std::vector<std::wstring> usb;
         for (const auto& d : app.session.device.disks) if (d.usb && d.identity_verified && !d.system) {
             for (const auto& v : app.session.device.volumes) if (v.disks == std::vector<unsigned>{d.number})
@@ -281,13 +281,13 @@ void render() {
                     usb.push_back(wide(mount.substr(0,2)) + L" · " + text(d.model) + L" · " + bytes(d.bytes) + L" · Disco " + std::to_wstring(d.number));
                 }
         }
-        label(L"USB DE DESTINO · Se volverá a verificar antes de escribir", x, 518, w, 28, app.small);
+        label(L"USB DE DESTINO · Se volverá a verificar antes de escribir", x, 518, w, 28, app.small_font);
         if (usb.empty()) label(L"No hay un USB verificable. Conéctalo y utiliza Detectar equipo.", x, 555, w, 50);
         else {
             app.selected_usb = std::min(app.selected_usb, int(usb.size()) - 1);
             combo(media_target, x, 552, w, usb, app.selected_usb);
         }
-        label(L"UEFI CA 2023 · Comprueba la compatibilidad del firmware.\r\nEl asistente no desactiva Secure Boot ni modifica las claves del firmware.", x, 609, w, 56, app.small);
+        label(L"UEFI CA 2023 · Comprueba la compatibilidad del firmware.\r\nEl asistente no desactiva Secure Boot ni modifica las claves del firmware.", x, 609, w, 56, app.small_font);
         auto write = button(L"2. Revisar y grabar USB…", media_write, x, bottom - 50, 285, 42);
         EnableWindow(write, !usb.empty() && !app.media_work.empty() && !app.demo);
         break;
@@ -301,12 +301,12 @@ void render() {
         readonly(summary, x, 305, w, 188);
         auto check = control(L"BUTTON", L"Incluir detalles técnicos (equipo, rutas, archivos e identificadores)", WS_TABSTOP | BS_AUTOCHECKBOX, x, 526, w, 44, technical_check);
         SendMessageW(check, BM_SETCHECK, app.technical ? BST_CHECKED : BST_UNCHECKED, 0);
-        label(L"Por defecto, el informe JSON + HTML está anonimizado.\r\nNo incluye contraseñas, claves de recuperación ni tokens. Tú eliges dónde guardarlo y con quién compartirlo.", x, 587, w, 70, app.small);
+        label(L"Por defecto, el informe JSON + HTML está anonimizado.\r\nNo incluye contraseñas, claves de recuperación ni tokens. Tú eliges dónde guardarlo y con quién compartirlo.", x, 587, w, 70, app.small_font);
         button(L"Exportar informe JSON + HTML", action_export, x, bottom - 50, 320, 42);
         break;
     }
     }
-    app.status = label(app.status_text, x, height - 64, w - 162, 44, app.small);
+    app.status = label(app.status_text, x, height - 64, w - 162, 44, app.small_font);
     app.cancel_button = button(L"Cancelar", action_cancel, width - 178, height - 69, 142, 36);
     EnableWindow(app.cancel_button, app.busy && app.cancellable);
     app.progress = control(PROGRESS_CLASSW, L"", PBS_MARQUEE, x, height - 14, w, 5);
@@ -565,8 +565,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
     CoInitializeSecurity(nullptr, -1, nullptr, nullptr, RPC_C_AUTHN_LEVEL_PKT_PRIVACY, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE, nullptr);
     INITCOMMONCONTROLSEX controls{sizeof(controls), ICC_STANDARD_CLASSES | ICC_PROGRESS_CLASS}; InitCommonControlsEx(&controls);
     app.session.id = new_id(); app.session.started_at = utc_now(); app.session.assessment = assess(Account::unknown);
+    bool boot_check = false;
     int argc{}; auto args = CommandLineToArgvW(GetCommandLineW(), &argc);
     for (int i = 1; i < argc; ++i) if (std::wstring(args[i]) == L"--demo") app.demo = true;
+    for (int i = 1; i < argc; ++i) if (std::wstring(args[i]) == L"--boot-check") boot_check = true;
     LocalFree(args);
     app.session.device.winpe = is_winpe(); app.session.device.elevated = is_elevated();
     if (app.demo) seed_demo();
@@ -581,12 +583,16 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
         CW_USEDEFAULT, CW_USEDEFAULT, std::min(px(1240), int(work_area.right-work_area.left)), std::min(px(880), int(work_area.bottom-work_area.top)), nullptr, nullptr, instance, nullptr);
     if (!app.window) { if (SUCCEEDED(com)) CoUninitialize(); return 2; }
     ShowWindow(app.window, show); UpdateWindow(app.window);
+    if (boot_check) {
+        try { write_boot_evidence(executable_directory() / L"boot-evidence.json"); }
+        catch (...) { app.status_text = L"La comprobación de arranque no pudo completarse; no se declara validada."; render(); }
+    }
     MSG message{};
     while (GetMessageW(&message, nullptr, 0, 0) > 0) {
         if (!IsDialogMessageW(app.window, &message)) { TranslateMessage(&message); DispatchMessageW(&message); }
     }
     if (app.worker.joinable()) app.worker.join();
-    for (auto font : {app.regular, app.small, app.heading, app.title, app.brand}) if (font) DeleteObject(font);
+    for (auto font : {app.regular, app.small_font, app.heading, app.title, app.brand}) if (font) DeleteObject(font);
     for (auto brush : {app.background, app.white, app.sidebar}) if (brush) DeleteObject(brush);
     if (SUCCEEDED(com)) CoUninitialize(); return int(message.wParam);
 }

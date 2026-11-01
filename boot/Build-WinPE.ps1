@@ -3,7 +3,8 @@
 param(
     [Parameter(Mandatory)][string]$ApplicationDirectory,
     [Parameter(Mandatory)][string]$WorkDirectory,
-    [Parameter(Mandatory)][string]$AdkRoot
+    [Parameter(Mandatory)][string]$AdkRoot,
+    [switch]$ValidationImage
 )
 $ErrorActionPreference = 'Stop'
 function Assert-SafePath([string]$Value) {
@@ -12,6 +13,8 @@ function Assert-SafePath([string]$Value) {
 foreach ($pathValue in @($ApplicationDirectory, $WorkDirectory, $AdkRoot)) { Assert-SafePath $pathValue }
 if (Test-Path -LiteralPath $WorkDirectory) { throw 'La carpeta de trabajo ya existe. Elige una carpeta nueva.' }
 if (-not (Test-Path -LiteralPath (Join-Path $ApplicationDirectory 'RecoveryDesk.exe'))) { throw 'No se encuentra RecoveryDesk.exe.' }
+$buildInfo = Get-Content -LiteralPath (Join-Path $ApplicationDirectory 'build-info.json') -Raw | ConvertFrom-Json
+if (-not $buildInfo.winpe_builder_toolchain_supported) { throw 'Se requiere el binario MSVC con CRT estatico para WinPE.' }
 $deploymentEnvironment = Join-Path $AdkRoot 'Deployment Tools\DandISetEnv.bat'
 $peRoot = Join-Path $AdkRoot 'Windows Preinstallation Environment'
 $components = Join-Path $peRoot 'amd64\WinPE_OCs'
@@ -39,15 +42,17 @@ try {
     }
     $payloadPath = Join-Path $mountPath 'RecoveryDesk'
     New-Item -ItemType Directory -Path $payloadPath | Out-Null
-    foreach ($name in @('RecoveryDesk.exe', 'data', 'LICENSE', 'NOTICE')) {
+    foreach ($name in @('RecoveryDesk.exe', 'data', 'LICENSE', 'NOTICE', 'third_party', 'build-info.json')) {
         Copy-Item -LiteralPath (Join-Path $ApplicationDirectory $name) -Destination $payloadPath -Recurse
     }
     # Omit the media builder from WinPE: only the native executable and local guides are needed.
-    @'
+    $launch = @'
 [LaunchApps]
 %SYSTEMROOT%\System32\wpeinit.exe
 %SYSTEMDRIVE%\RecoveryDesk\RecoveryDesk.exe
-'@ | Set-Content -LiteralPath (Join-Path $mountPath 'Windows\System32\winpeshl.ini') -Encoding ASCII
+'@
+    if ($ValidationImage) { $launch = $launch.Replace('%SYSTEMDRIVE%\RecoveryDesk\RecoveryDesk.exe', '%SYSTEMDRIVE%\RecoveryDesk\RecoveryDesk.exe, --boot-check') }
+    $launch | Set-Content -LiteralPath (Join-Path $mountPath 'Windows\System32\winpeshl.ini') -Encoding ASCII
     & "$env:SystemRoot\System32\dism.exe" /Unmount-Image "/MountDir:$mountPath" /Commit
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo confirmar WinPE.' }
     $mounted = $false

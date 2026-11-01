@@ -27,11 +27,16 @@ jobs:
       - run: cmake --preset msvc-release
       - run: cmake --build --preset release
       - run: ctest --preset release
+      - name: Verify actual PE runtime dependencies
+        run: python scripts/verify_pe.py build/msvc/Release/RecoveryDesk.exe --output build/msvc/pe-dependencies.json
       - name: Static analysis
         run: |
           cmake -S . -B build/analyze -G "Visual Studio 17 2022" -A x64 -DCMAKE_CXX_FLAGS=/analyze -DBUILD_TESTING=OFF
           cmake --build build/analyze --config Release
       - run: cmake --install build/msvc --config Release --prefix dist/RecoveryDesk
+      - name: Include dependency evidence
+        shell: pwsh
+        run: Copy-Item build/msvc/pe-dependencies.json dist/RecoveryDesk/pe-dependencies.json
       - uses: actions/upload-artifact@v4
         with:
           name: RecoveryDesk-windows-x64-alpha

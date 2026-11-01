@@ -16,11 +16,13 @@ jobs:
       - run: cmake --preset msvc-release
       - run: cmake --build --preset release
       - run: ctest --preset release
+      - run: python scripts/verify_pe.py build/msvc/Release/RecoveryDesk.exe --output build/msvc/pe-dependencies.json
       - run: cmake --install build/msvc --config Release --prefix dist/RecoveryDesk
       - name: Package and inventory
         shell: pwsh
         run: |
           Copy-Item third_party/manifest.json dist/RecoveryDesk/dependencies.json
+          Copy-Item build/msvc/pe-dependencies.json dist/RecoveryDesk/pe-dependencies.json
           Copy-Item docs/VALIDATION.md dist/RecoveryDesk/VALIDATION.md
           Compress-Archive -Path dist/RecoveryDesk -DestinationPath dist/RecoveryDesk-windows-x64.zip
           (Get-FileHash dist/RecoveryDesk-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant() + '  RecoveryDesk-windows-x64.zip' | Set-Content dist/SHA256SUMS.txt -Encoding ASCII

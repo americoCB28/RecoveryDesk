@@ -24,7 +24,7 @@ else()
   add_compile_options(-Wall -Wextra -Wpedantic -finput-charset=UTF-8)
   add_link_options(-static -municode)
 endif()
-add_library(recoverydesk_core STATIC src/core.cpp src/windows.cpp src/backup.cpp src/media.cpp)
+add_library(recoverydesk_core STATIC src/core.cpp src/windows.cpp src/backup.cpp src/media.cpp src/boot_probe.cpp)
 target_include_directories(recoverydesk_core PUBLIC include PRIVATE third_party)
 target_link_libraries(recoverydesk_core PUBLIC bcrypt ole32 oleaut32 wbemuuid advapi32 shell32)
 add_executable(RecoveryDesk WIN32 apps/main.cpp apps/app.rc)
@@ -35,6 +35,7 @@ add_custom_command(TARGET RecoveryDesk POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/boot" "$<TARGET_FILE_DIR:RecoveryDesk>/boot"
   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/LICENSE" "$<TARGET_FILE_DIR:RecoveryDesk>/LICENSE"
   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/NOTICE" "$<TARGET_FILE_DIR:RecoveryDesk>/NOTICE"
+  COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/build-info.json" "$<TARGET_FILE_DIR:RecoveryDesk>/build-info.json"
   COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:RecoveryDesk>/third_party/nlohmann"
   COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/third_party/nlohmann/LICENSE.MIT" "$<TARGET_FILE_DIR:RecoveryDesk>/third_party/nlohmann/LICENSE.MIT")
 include(CTest)
