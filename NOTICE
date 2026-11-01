@@ -1,0 +1,11 @@
+RecoveryDesk 0.1.0
+Copyright 2026 RecoveryDesk contributors.
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+This distribution includes nlohmann/json 3.12.0, Copyright (c) 2013-2025
+Niels Lohmann, licensed under MIT. See third_party/nlohmann/LICENSE.MIT.
+
+Windows, Windows PE, Windows ADK, BitLocker, and Microsoft are trademarks
+of Microsoft Corporation. RecoveryDesk is an independent project.
+Microsoft components are not covered by RecoveryDesk's Apache license
+and are not included in this source distribution.

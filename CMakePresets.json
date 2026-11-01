@@ -1,0 +1,10 @@
+{
+  "version": 6,
+  "configurePresets": [{
+    "name": "msvc-release", "displayName": "Windows x64 / static CRT",
+    "generator": "Visual Studio 17 2022", "architecture": "x64",
+    "binaryDir": "${sourceDir}/build/msvc", "cacheVariables": {"BUILD_TESTING": "ON"}
+  }],
+  "buildPresets": [{"name": "release", "configurePreset": "msvc-release", "configuration": "Release"}],
+  "testPresets": [{"name": "release", "configurePreset": "msvc-release", "configuration": "Release", "output": {"outputOnFailure": true}}]
+}

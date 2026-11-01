@@ -1,0 +1,44 @@
+name: Windows build and safety tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify vendored dependencies
+        shell: pwsh
+        run: |
+          $manifest = Get-Content third_party/manifest.json -Raw | ConvertFrom-Json
+          foreach ($property in $manifest.PSObject.Properties) {
+            if ((Get-FileHash -LiteralPath $property.Name -Algorithm SHA256).Hash.ToLowerInvariant() -ne $property.Value.sha256) { throw "Dependency hash mismatch: $($property.Name)" }
+          }
+      - name: Parse media scripts without executing them
+        shell: pwsh
+        run: |
+          foreach ($scriptFile in Get-ChildItem boot/*.ps1) {
+            $parseTokens = $null; $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($scriptFile.FullName, [ref]$parseTokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+          }
+      - run: cmake --preset msvc-release
+      - run: cmake --build --preset release
+      - run: ctest --preset release
+      - name: Static analysis
+        run: |
+          cmake -S . -B build/analyze -G "Visual Studio 17 2022" -A x64 -DCMAKE_CXX_FLAGS=/analyze -DBUILD_TESTING=OFF
+          cmake --build build/analyze --config Release
+      - run: cmake --install build/msvc --config Release --prefix dist/RecoveryDesk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RecoveryDesk-windows-x64-alpha
+          path: dist/RecoveryDesk
+  dependency-review:
+    if: github.event_name == 'pull_request' && github.event.repository.private == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4

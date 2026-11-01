@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "guides": [
+    {
+      "id": "unknown", "language": "es", "title": "Identifica el problema de acceso",
+      "source": "https://support.microsoft.com/en-au/windows/security/identity-signin/troubleshoot-problems-signing-in-to-windows",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Trabaja únicamente con tu equipo o con autorización de su propietario."],
+      "steps": ["Revisa qué solicita la pantalla: PIN, contraseña o clave BitLocker de 48 dígitos.", "Si puedes entrar con otro método legítimo, utiliza las opciones de inicio de sesión de Windows.", "Selecciona el tipo de problema en RecoveryDesk. Una carpeta de usuario no demuestra el tipo de cuenta.", "Si el equipo es de una organización, contacta con su administrador."]
+    },
+    {
+      "id": "microsoft", "language": "es", "title": "Recupera tu cuenta Microsoft",
+      "source": "https://support.microsoft.com/en-us/accounts-billing/security/change-or-reset-your-microsoft-account-password-in-windows",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Acceso a los métodos de verificación de tu cuenta.", "Internet en el dispositivo donde realices la recuperación."],
+      "steps": ["Desde la pantalla de inicio de sesión, busca la opción para recuperar la contraseña, si está disponible.", "También puedes abrir la documentación oficial desde otra PC o teléfono y acceder al formulario de recuperación de Microsoft.", "Completa la verificación exclusivamente en el sitio de Microsoft. RecoveryDesk no necesita tu contraseña ni códigos.", "Conecta la laptop a Internet y comprueba el inicio de sesión. Cambiar la contraseña de la cuenta no equivale a cambiar el PIN."]
+    },
+    {
+      "id": "pin", "language": "es", "title": "Restablece tu PIN de Windows Hello",
+      "source": "https://support.microsoft.com/en-us/windows/security/change-or-reset-your-pin-in-windows",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Método alternativo de acceso o verificación de cuenta según la configuración de Windows."],
+      "steps": ["Selecciona las opciones de inicio de sesión y comprueba si puedes entrar con la contraseña de la cuenta.", "Utiliza la opción de PIN olvidado cuando Windows la ofrezca; su disponibilidad depende del tipo de cuenta y configuración.", "Si ya tienes una sesión, abre Configuración > Cuentas > Opciones de inicio de sesión y administra el PIN.", "Vuelve a comprobar el acceso en la laptop. Un PIN pertenece a ese dispositivo y no es la contraseña de Microsoft."]
+    },
+    {
+      "id": "local", "language": "es", "title": "Opciones oficiales para una cuenta local",
+      "source": "https://support.microsoft.com/en-us/accounts-billing/security/change-or-reset-your-microsoft-account-password-in-windows",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Preguntas de seguridad configuradas o disco de restablecimiento creado previamente, según el equipo."],
+      "steps": ["En la pantalla de inicio de sesión, revisa si Windows ofrece restablecer la contraseña con las preguntas de seguridad.", "Si creaste previamente un disco de restablecimiento, utiliza el asistente de Windows correspondiente.", "Si no dispones de un método oficial, consulta la documentación y evalúa un respaldo de los archivos accesibles antes de otras opciones de recuperación de Windows.", "Un restablecimiento administrativo puede afectar datos protegidos mediante EFS o DPAPI. RecoveryDesk no realiza ese cambio ni garantiza acceso a esos datos."]
+    },
+    {
+      "id": "corporate", "language": "es", "title": "Cuenta de trabajo o institución educativa",
+      "source": "https://support.microsoft.com/en-au/windows/security/identity-signin/troubleshoot-problems-signing-in-to-windows",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Autorización y procedimientos de la organización."],
+      "steps": ["Identifica si el equipo o la cuenta están administrados por una organización.", "Contacta con su mesa de ayuda o usa el portal de recuperación aprobado por esa organización.", "El administrador debe gestionar las políticas de acceso, claves BitLocker y métodos de verificación.", "Puedes exportar un informe anonimizado de RecoveryDesk y compartirlo tú mismo con soporte si lo necesitas."]
+    },
+    {
+      "id": "bitlocker", "language": "es", "title": "Localiza tu clave legítima de BitLocker",
+      "source": "https://support.microsoft.com/en-us/windows/security/encryption/find-your-bitlocker-recovery-key",
+      "reviewed_on": "2026-11-01",
+      "requirements": ["Clave de recuperación legítima de 48 dígitos correspondiente al volumen."],
+      "steps": ["Anota el identificador de clave que muestra la laptop para localizar la clave correcta.", "Consulta tu cuenta Microsoft desde otro dispositivo, una copia impresa o el archivo donde guardaste la clave. Para equipos corporativos, consulta a TI.", "Introduce la clave en la pantalla BitLocker de la laptop o en el diálogo de desbloqueo del volumen de RecoveryDesk.", "Si no tienes la clave, RecoveryDesk no podrá acceder al contenido cifrado. No se puede prometer la recuperación de esos archivos.", "Desbloquear el volumen permite examinar sus archivos; no restablece la contraseña de inicio de sesión."]
+    }
+  ]
+}
