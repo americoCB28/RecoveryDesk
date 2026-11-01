@@ -30,6 +30,10 @@ target_link_libraries(recoverydesk_core PUBLIC bcrypt ole32 oleaut32 wbemuuid ad
 add_executable(RecoveryDesk WIN32 apps/main.cpp apps/app.rc)
 target_include_directories(RecoveryDesk PRIVATE third_party apps)
 target_link_libraries(RecoveryDesk PRIVATE recoverydesk_core comctl32 comdlg32 gdi32 uxtheme uuid)
+if(MSVC)
+  # app.rc owns RT_MANIFEST 1. Avoid a second linker-generated resource with the same ID.
+  target_link_options(RecoveryDesk PRIVATE /MANIFEST:NO)
+endif()
 add_custom_command(TARGET RecoveryDesk POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "$<TARGET_FILE_DIR:RecoveryDesk>/data"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/boot" "$<TARGET_FILE_DIR:RecoveryDesk>/boot"
