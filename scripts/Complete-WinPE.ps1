@@ -16,7 +16,7 @@ function Invoke-Native([string]$Executable,[string[]]$Arguments) {
 try {
     if ($WaitForInstaller) {
         Write-Status 'installer' 'waiting'
-        $deadline = [DateTime]::UtcNow.AddHours(1)
+        $deadline = [DateTime]::UtcNow.AddHours(3)
         do {
             $install = Get-Content -LiteralPath (Join-Path $privateRoot 'install-status.json') -Raw | ConvertFrom-Json
             if ($install.state -eq 'failed') { throw $install.detail }

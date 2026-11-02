@@ -36,6 +36,12 @@ try {
     & $vbox startvm $config.name --type headless
     if ($LASTEXITCODE -ne 0) { throw 'VirtualBox no pudo iniciar la VM.' }
     $started = $true
+    # The Microsoft DVD loader may ask for a key. This fixture has only the validation DVD.
+    for ($bootKeyAttempt = 0; $bootKeyAttempt -lt 3; $bootKeyAttempt++) {
+        Start-Sleep -Seconds 2
+        & $vbox controlvm $config.name keyboardputscancode 39 b9
+        if ($LASTEXITCODE -ne 0) { throw 'No se pudo enviar la tecla de arranque a la VM.' }
+    }
     $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     $proof = $null
     do {

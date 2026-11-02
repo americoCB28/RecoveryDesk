@@ -35,7 +35,8 @@ try {
     $vsPath = $null
     if (Test-Path -LiteralPath $vswhere) { $vsPath = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath }
     if (-not $vsPath) {
-        Install-Verified 'vs_buildtools.exe' '--quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended'
+        # Install the compiler and SDK needed by this project, without optional IDE/test/LLVM bundles.
+        Install-Verified 'vs_buildtools.exe' '--quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows11SDK.26100'
     }
     $adkRoot = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\Assessment and Deployment Kit'
     if (-not (Test-Path -LiteralPath (Join-Path $adkRoot 'Deployment Tools\DandISetEnv.bat'))) {

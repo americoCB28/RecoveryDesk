@@ -6,7 +6,7 @@ Aplicación nativa C++20/Win32, local, sin cuentas de servicio ni telemetría. U
 
 > Estado: **0.1.0-alpha**. No es una versión certificada para producción. La validación de arranque con Secure Boot, la matriz de hardware y las sesiones con usuarios requieren el laboratorio descrito en [docs/VALIDATION.md](docs/VALIDATION.md). No se distribuye una imagen de Microsoft.
 
-Código público: [americoCB28/RecoveryDesk](https://github.com/americoCB28/RecoveryDesk). La CI verifica la compilación MSVC, las pruebas, el análisis estático y las importaciones reales del ejecutable. Las releases se preparan como borrador antes de publicar sus binarios.
+Código público: [americoCB28/RecoveryDesk](https://github.com/americoCB28/RecoveryDesk). [Descargar alpha para Windows x64](https://github.com/americoCB28/RecoveryDesk/releases/tag/v0.1.0-alpha.1). La CI verifica la compilación MSVC, las pruebas, el análisis estático y las importaciones reales del ejecutable. Las releases se preparan como borrador antes de publicar sus binarios.
 
 ## Funciones implementadas
 

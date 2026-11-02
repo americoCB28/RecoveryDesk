@@ -4,7 +4,7 @@ RecoveryDesk 0.1 es una alpha. No hay una versión certificada para uso en equip
 
 ## Reportar una vulnerabilidad
 
-Cuando el proyecto esté publicado en GitHub, utiliza **Security > Advisories > Report a vulnerability** si está habilitado. No publiques detalles de explotación, claves o archivos de usuarios en issues. Si el canal privado todavía no está configurado, contacta primero al mantenedor a través del perfil del repositorio y solicita un canal privado; este repositorio no inventa una dirección de contacto.
+Utiliza el [canal privado de vulnerabilidades de GitHub](https://github.com/americoCB28/RecoveryDesk/security/advisories/new), habilitado para este repositorio. No publiques detalles de explotación, claves o archivos de usuarios en issues.
 
 Incluye versión, entorno, pasos con datos sintéticos, impacto y resultado esperado. Redacta números de serie y rutas personales. Prioridad: selección incorrecta de discos, sobrescritura no autorizada, aceptación de copias corruptas, filtración de secretos e inyección de comandos o HTML.
 
@@ -20,4 +20,4 @@ Incluye versión, entorno, pasos con datos sintéticos, impacto y resultado espe
 
 ## Publicaciones
 
-La CI genera artefactos y checksums. El flujo de release añade inventario y attestations de procedencia cuando el repositorio y los permisos de GitHub lo permiten. Authenticode no está configurado: no se incluye ni inventa un certificado de firma.
+La CI genera artefactos y checksums. El flujo de release añade inventario y atestaciones de procedencia de GitHub. Verifica un ZIP descargado con `gh attestation verify RecoveryDesk-windows-x64.zip --repo americoCB28/RecoveryDesk` y compara su SHA-256 con `SHA256SUMS.txt`. Authenticode no está configurado: la atestación de compilación no sustituye la firma del ejecutable para SmartScreen.
