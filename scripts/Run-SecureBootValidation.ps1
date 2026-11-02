@@ -17,8 +17,12 @@ $expected = Join-Path $directory "$($config.name)\$($config.name).vbox"
 $configLine = $machine | Where-Object { $_ -like 'CfgFile=*' } | Select-Object -First 1
 $actual = $configLine.Substring(9).TrimEnd('"').Replace('\\','\')
 if ([IO.Path]::GetFullPath($actual) -ne [IO.Path]::GetFullPath($expected)) { throw 'La VM no pertenece a esta carpeta de laboratorio.' }
-if ($machine -notcontains 'nic1="none"' -or ($machine | Where-Object { $_ -like 'SharedFolderName*' }) -or
-    ($machine | Where-Object { $_ -match '^"SATA-[0-9]+-[0-9]+"=' -and $_ -notmatch '="emptydrive"$' })) { throw 'Se requiere una VM nueva, aislada, sin discos, red ni carpetas de host.' }
+if ($machine -notcontains 'VMState="poweroff"' -or $machine -notcontains 'nic1="none"' -or ($machine | Where-Object { $_ -like 'SharedFolderName*' }) -or
+    ($machine | Where-Object { $_ -match '^"SATA-[0-9]+-[0-9]+"=' -and $_ -notmatch '="(emptydrive|none)"$' })) { throw 'Se requiere una VM nueva, apagada, aislada, sin discos, red ni carpetas de host.' }
+# Inspect the current firmware database, rather than accepting the JSON configuration as proof.
+$databasePath = Join-Path $directory ('db-observed-' + [Guid]::NewGuid().ToString('N') + '.esl')
+& $vbox modifynvram $config.name queryvar '--name=db' "--filename=$databasePath"
+if ($LASTEXITCODE -ne 0 -or (Get-FileHash -LiteralPath $databasePath -Algorithm SHA256).Hash -ne '1206F7A17EBA2AF052D0249655E702B8F5DB1026F3642253B1A64E95360ED5AD') { throw 'La base db no contiene exclusivamente el certificado Windows UEFI CA 2023 de este laboratorio.' }
 $iso = (Resolve-Path -LiteralPath $IsoPath).Path
 $metadata = Get-Content -LiteralPath "$iso.json" -Raw | ConvertFrom-Json
 if ($metadata.boot_ca -ne '2023' -or (Get-FileHash -LiteralPath $iso -Algorithm SHA256).Hash -ne $metadata.iso_sha256) { throw 'La ISO no coincide con su registro de construccion.' }

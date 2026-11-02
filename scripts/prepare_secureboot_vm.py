@@ -16,6 +16,9 @@ def signature_list(certificate):
 
 
 def prepare(vbox, directory, certificate_path, memory):
+    certificate = pathlib.Path(certificate_path).read_bytes()
+    if hashlib.sha256(certificate).hexdigest() != "076f1fea90ac29155ebf77c17682f75f1fdd1be196da302dc8461e350a9ae330":
+        raise RuntimeError("Expected the official Windows UEFI CA 2023 certificate")
     directory = pathlib.Path(directory).resolve()
     directory.mkdir(parents=True, exist_ok=True)
     name = "RecoveryDesk-SecureBoot-" + uuid.uuid4().hex[:10]
@@ -43,7 +46,6 @@ def prepare(vbox, directory, certificate_path, memory):
     call("modifynvram", name, "enrollmssignatures")
     db_path = directory / "db-original.esl"
     call("modifynvram", name, "queryvar", "--name=db", "--filename=" + str(db_path))
-    certificate = pathlib.Path(certificate_path).read_bytes()
     # Restrict this disposable fixture to Windows UEFI CA 2023. A 2011-only loader must fail.
     database = signature_list(certificate)
     combined = directory / "db-with-windows-2023.esl"
