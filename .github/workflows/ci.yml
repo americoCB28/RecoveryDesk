@@ -19,7 +19,7 @@ jobs:
       - name: Parse media scripts without executing them
         shell: pwsh
         run: |
-          foreach ($scriptFile in Get-ChildItem boot/*.ps1) {
+          foreach ($scriptFile in Get-ChildItem boot/*.ps1, scripts/*.ps1) {
             $parseTokens = $null; $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile($scriptFile.FullName, [ref]$parseTokens, [ref]$parseErrors) | Out-Null
             if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
@@ -27,6 +27,8 @@ jobs:
       - run: cmake --preset msvc-release
       - run: cmake --build --preset release
       - run: ctest --preset release
+      - name: Read-only Windows adapter integration
+        run: ./build/msvc/Release/recoverydesk_tests.exe data/guides.es.json --probe
       - name: Verify actual PE runtime dependencies
         run: python scripts/verify_pe.py build/msvc/Release/RecoveryDesk.exe --output build/msvc/pe-dependencies.json
       - name: Static analysis
