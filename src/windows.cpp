@@ -191,7 +191,8 @@ DeviceSnapshot discover(std::atomic_bool& cancel, const ProgressSink& progress) 
             Com<IWbemClassObject> object; ULONG count{};
             const HRESULT hr = enumeration->Next(3000, 1, object.put(), &count);
             if (hr == WBEM_S_TIMEDOUT) { s.issues.push_back({"encryption_timeout", "BitLocker no respondió a tiempo.", "Vuelve a detectar el equipo."}); break; }
-            if (FAILED(hr) || count == 0) break;
+            if (FAILED(hr)) { s.issues.push_back({"encryption_unknown", "El proveedor BitLocker no pudo enumerar sus volúmenes.", "Comprueba los componentes WMI y WinPE-SecureStartup; no se presume que los discos estén sin cifrar."}); break; }
+            if (count == 0) break;
             Encryption state; const auto path = property_string(object.p, L"__PATH");
             if (auto lock = provider.method(path, L"GetLockStatus", L"LockStatus")) state.locked = *lock != 0;
             if (auto conversion = provider.method(path, L"GetConversionStatus", L"ConversionStatus")) state.encrypted = *conversion != 0;

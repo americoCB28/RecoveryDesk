@@ -35,6 +35,7 @@ try {
     Invoke-Native -Executable $cmake -Arguments @('--build','--preset','release','--parallel','2')
     Write-Status 'msvc' 'testing'
     Invoke-Native -Executable $ctest -Arguments @('--preset','release')
+    Invoke-Native -Executable (Join-Path $ProjectRoot 'build\msvc\Release\recoverydesk_tests.exe') -Arguments @((Join-Path $ProjectRoot 'data\guides.es.json'),'--probe')
     Invoke-Native -Executable $cmake -Arguments @('--install','build/msvc','--config','Release','--prefix','dist/RecoveryDesk')
     $appDirectory = Join-Path $ProjectRoot 'dist\RecoveryDesk'
     $python = Get-Command python -ErrorAction Stop | Select-Object -ExpandProperty Source -First 1
