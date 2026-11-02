@@ -12,6 +12,16 @@ function Write-Status([string]$Stage, [string]$State, [string]$Detail = '') {
 }
 function Install-Verified([string]$Name, [string]$Arguments) {
     $file = Join-Path $privateRoot "installers\$Name"
+    if (-not (Test-Path -LiteralPath $file)) {
+        $sources = @{
+            'vs_buildtools.exe'='https://aka.ms/vs/17/release/vs_buildtools.exe'
+            'adksetup.exe'='https://go.microsoft.com/fwlink/?linkid=2289980'
+            'adkwinpesetup.exe'='https://go.microsoft.com/fwlink/?linkid=2289981'
+        }
+        New-Item -ItemType Directory -Path (Split-Path -Parent $file) -Force | Out-Null
+        Write-Status $Name 'downloading'
+        Invoke-WebRequest -Uri $sources[$Name] -OutFile $file -UseBasicParsing
+    }
     $signature = Get-AuthenticodeSignature -LiteralPath $file
     if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch 'O=Microsoft Corporation') { throw "Firma Microsoft no valida: $Name" }
     Write-Status $Name 'running'
@@ -22,7 +32,8 @@ function Install-Verified([string]$Name, [string]$Arguments) {
 Start-Transcript -LiteralPath (Join-Path $privateRoot 'install-toolchain.log') -Append | Out-Null
 try {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-    $vsPath = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    $vsPath = $null
+    if (Test-Path -LiteralPath $vswhere) { $vsPath = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath }
     if (-not $vsPath) {
         Install-Verified 'vs_buildtools.exe' '--quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended'
     }

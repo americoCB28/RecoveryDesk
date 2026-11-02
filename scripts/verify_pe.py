@@ -47,7 +47,7 @@ def inspect(path):
     unsupported = [name for name in imports if name.lower().startswith(forbidden)]
     return {"schema_version": 1, "sha256": hashlib.sha256(data).hexdigest(), "architecture": "x64",
             "imports": imports, "dynamic_c_runtime": unsupported, "static_runtime_check_passed": not unsupported,
-            "winpe_boot_validated": False}
+            "scope": "pe_imports_only"}
 
 
 if __name__ == "__main__":

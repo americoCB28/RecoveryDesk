@@ -37,6 +37,7 @@ struct Installation {
 struct DeviceSnapshot {
     std::string machine, captured_at;
     bool winpe{}, elevated{}, complete{};
+    std::optional<bool> secure_boot;
     std::vector<Disk> disks;
     std::vector<Volume> volumes;
     std::vector<Installation> installations;

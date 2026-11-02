@@ -78,6 +78,14 @@ int wmain(int argc, wchar_t** argv) {
         require(html.find("<script>") == std::string::npos && html.find("&lt;script&gt;") != std::string::npos, "HTML injection");
     });
     test("report never infers recovered access", [] { require(outcome_text(Outcome::pending).find("Pendiente") != std::string::npos, "false recovery"); });
+    test("Secure Boot unknown is distinct from disabled", [] {
+        auto r = sample_report();
+        require(json::parse(report_json(r)).at("secure_boot").is_null(), "unknown became disabled");
+        r.device.secure_boot = false;
+        require(json::parse(report_json(r)).at("secure_boot") == false, "disabled not preserved");
+        r.device.secure_boot = true;
+        require(json::parse(report_json(r)).at("secure_boot") == true, "enabled not preserved");
+    });
     test("export writes both formats and rejects overwrite", [] {
         Fixture f; auto r = sample_report(); export_reports(r, f.destination, false);
         require(fs::exists(f.destination / L"RecoveryDesk-sample-session.html"), "HTML absent");

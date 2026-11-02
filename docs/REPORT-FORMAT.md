@@ -8,4 +8,6 @@ La opción técnica añade `machine`, `selected_installation`, discos, volúmene
 
 Los estados de respaldo son `pending`, `running`, `complete`, `partial`, `failed` y `cancelled`. Una entrada `verified` incluye SHA-256; una omisión incluye un código. Los archivos omitidos nunca se cuentan como verificados.
 
+`secure_boot` es un campo opcional de diagnóstico: `true` o `false` proceden de la variable UEFI leída por el proceso; `null` significa que no se pudo consultar. El informe no certifica otro equipo, un arranque anterior ni la matriz de revocaciones del firmware.
+
 No hay campos para secretos. Los consumidores deben rechazar versiones de esquema desconocidas y tratar todos los textos como datos no confiables.

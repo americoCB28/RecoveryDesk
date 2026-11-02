@@ -9,6 +9,7 @@ bool is_winpe();
 bool is_elevated();
 fs::path executable_directory();
 void write_boot_evidence(const fs::path& output);
+std::optional<bool> query_secure_boot();
 DeviceSnapshot discover(std::atomic_bool& cancel, const ProgressSink& progress = {});
 StorageIdentity storage_identity(const fs::path& path);
 Disk inspect_disk(unsigned number);

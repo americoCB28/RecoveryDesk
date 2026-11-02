@@ -86,6 +86,7 @@ std::string report_json(const SessionReport& r, bool technical) {
         {"disk_count", r.device.disks.size()}, {"installation_count", r.device.installations.size()},
         {"assessment", {{"guide_id", r.assessment.guide_id}, {"outcome", outcome_text(r.assessment.outcome)}}}};
     // Deliberately whitelist fields. Personal exports contain no host names, serials, file names or paths.
+    j["secure_boot"] = r.device.secure_boot ? json(*r.device.secure_boot) : json(nullptr);
     j["events"] = json::array();
     static const std::set<std::string> allowed_events{
         "simulation_only", "outcome_selected_by_user", "discovery_completed", "discovery_failed", "discovery_cancelled",

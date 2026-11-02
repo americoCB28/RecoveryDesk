@@ -4,8 +4,7 @@
 #include <fstream>
 
 namespace rd {
-namespace {
-std::optional<bool> secure_boot_state() {
+std::optional<bool> query_secure_boot() {
     HANDLE token{};
     if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token)) return {};
     TOKEN_PRIVILEGES request{}, previous{}; DWORD previous_bytes = sizeof(previous);
@@ -23,10 +22,9 @@ std::optional<bool> secure_boot_state() {
     }
     CloseHandle(token); return result;
 }
-}
 void write_boot_evidence(const fs::path& output) {
     std::atomic_bool cancel{false}; const auto device = discover(cancel);
-    const auto secure = secure_boot_state();
+    const auto secure = device.secure_boot;
     bool bitlocker_available = true;
     for (const auto& issue : device.issues)
         if (issue.code == "encryption_unknown" || issue.code == "encryption_timeout") bitlocker_available = false;

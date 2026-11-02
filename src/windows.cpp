@@ -177,6 +177,7 @@ Disk inspect_disk(unsigned number) {
 }
 DeviceSnapshot discover(std::atomic_bool& cancel, const ProgressSink& progress) {
     DeviceSnapshot s; s.captured_at = utc_now(); s.winpe = is_winpe(); s.elevated = is_elevated();
+    s.secure_boot = query_secure_boot();
     std::array<wchar_t, 256> computer{}; DWORD size = DWORD(computer.size());
     if (GetComputerNameW(computer.data(), &size)) s.machine = utf8(computer.data());
     if (!s.elevated) s.issues.push_back({"requires_elevation", "Algunos diagnósticos requieren permiso de administrador.", "Puedes seguir las guías sin elevar o volver a abrir con permisos."});

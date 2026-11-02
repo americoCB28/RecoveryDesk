@@ -150,6 +150,7 @@ std::wstring diagnostic_text() {
     }
     out << L"ESTADO DE LA SESIÓN\r\n" << (app.demo ? L"Datos simulados para demostración" : L"Detección real de este equipo")
         << L" · " << (app.session.device.elevated ? L"Administrador" : L"Permisos normales") << L"\r\n\r\n";
+    out << L"Secure Boot: " << (app.session.device.secure_boot ? (*app.session.device.secure_boot ? L"activado" : L"desactivado") : L"no se pudo determinar") << L"\r\n\r\n";
     if (!app.session.device.complete) out << L"Inventario pendiente o incompleto. No se ha terminado la detección.\r\n\r\n";
     for (const auto& d : app.session.device.disks) out << L"Disco " << d.number << L" · " << text(d.model) << L" · " << bytes(d.bytes)
         << L" · " << text(d.bus) << (d.system ? L" · Sistema" : L"") << (d.identity_verified ? L"" : L" · Identidad no verificada") << L"\r\n";
