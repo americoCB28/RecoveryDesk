@@ -33,4 +33,4 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$env:GITHUB_REF_NAME" dist/RecoveryDesk-windows-x64.zip dist/SHA256SUMS.txt --title "RecoveryDesk $env:GITHUB_REF_NAME" --notes "Native app alpha. WinPE/ADK not included. See VALIDATION.md for pending hardware acceptance." --prerelease
+        run: gh release create "$env:GITHUB_REF_NAME" dist/RecoveryDesk-windows-x64.zip dist/SHA256SUMS.txt --title "RecoveryDesk $env:GITHUB_REF_NAME" --notes "Native app alpha. WinPE/ADK not included. See VALIDATION.md for pending hardware acceptance." --prerelease --draft

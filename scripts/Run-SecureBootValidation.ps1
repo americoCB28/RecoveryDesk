@@ -10,6 +10,7 @@ $directory = Split-Path -Parent $configFile
 $config = Get-Content -LiteralPath $configFile -Raw | ConvertFrom-Json
 $vbox = Join-Path $env:ProgramFiles 'Oracle\VirtualBox\VBoxManage.exe'
 if ($config.name -notmatch '^RecoveryDesk-SecureBoot-[a-f0-9]{10}$' -or -not (Test-Path -LiteralPath $vbox)) { throw 'VM de laboratorio no valida.' }
+if ($config.db_trust -ne 'windows_uefi_2023_only') { throw 'El laboratorio debe confiar exclusivamente en Windows UEFI CA 2023.' }
 $machine = & $vbox showvminfo $config.name --machinereadable
 if ($LASTEXITCODE -ne 0) { throw 'No se encuentra la VM de laboratorio.' }
 $expected = Join-Path $directory "$($config.name)\$($config.name).vbox"
@@ -46,7 +47,7 @@ try {
     } while ([DateTime]::UtcNow -lt $deadline)
     & $vbox controlvm $config.name screenshotpng (Join-Path $directory 'screenshot.png')
     $passed = $proof -and $proof.winpe -and $proof.secure_boot -eq $true -and $proof.compiler -eq 'MSVC' -and $proof.discovery_complete -and $proof.bitlocker_provider_available
-    @{schema_version=1;result=$(if($passed){'passed'}else{'failed'});environment='VirtualBox UEFI';native_evidence=$proof;
+    @{schema_version=1;result=$(if($passed){'passed'}else{'failed'});environment='VirtualBox UEFI';db_trust='windows_uefi_2023_only';native_evidence=$proof;
       iso_sha256=$metadata.iso_sha256;physical_hardware_tested=$false;dbx_revocation_matrix_tested=$false;captured_at=[DateTime]::UtcNow.ToString('o')} |
         ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $resultPath -Encoding UTF8
     if ($passed) { $config.guest_boot_validated = $true; $config | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $configFile -Encoding UTF8 }

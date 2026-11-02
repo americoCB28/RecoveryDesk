@@ -6,6 +6,8 @@ Aplicación nativa C++20/Win32, local, sin cuentas de servicio ni telemetría. U
 
 > Estado: **0.1.0-alpha**. No es una versión certificada para producción. La validación de arranque con Secure Boot, la matriz de hardware y las sesiones con usuarios requieren el laboratorio descrito en [docs/VALIDATION.md](docs/VALIDATION.md). No se distribuye una imagen de Microsoft.
 
+Código público: [americoCB28/RecoveryDesk](https://github.com/americoCB28/RecoveryDesk). La CI verifica la compilación MSVC, las pruebas, el análisis estático y las importaciones reales del ejecutable. Las releases se preparan como borrador antes de publicar sus binarios.
+
 ## Funciones implementadas
 
 - Seis pantallas: inicio, detección, opciones oficiales de acceso, respaldo, preparación USB y resultado/informe.
@@ -38,6 +40,8 @@ cpack --config build/msvc/CPackConfig.cmake -C Release
 
 La compilación MSVC utiliza el CRT estático `/MT`; no usa MFC, ATL, CLR, Electron ni WebView2. Hay soporte de compilación secundario para LLVM-MinGW x64, utilizado para la verificación local cuando MSVC no está instalado. Ese binario bloquea la construcción de WinPE porque sus dependencias UCRT no se han validado en PE. Para preparar medios, utiliza una compilación MSVC y el ADK elegido; su aceptación física sigue pendiente.
 
+El script `scripts/Install-Toolchain.ps1 -ProjectRoot <carpeta>` instala las herramientas Microsoft desde una consola elevada, verificando las firmas de los instaladores. `scripts/Complete-WinPE.ps1` compila con MSVC, ejecuta las pruebas, revisa las dependencias y genera una ISO de laboratorio. Estas tareas se ejecutan por solicitud del operador y no forman parte del arranque normal de la aplicación.
+
 ## Uso
 
 1. Abre la aplicación en Windows. Puedes consultar las guías con permisos normales.
@@ -64,6 +68,8 @@ Necesitas otra PC donde puedas iniciar Windows como administrador, los component
 6. Espera la comprobación de archivos y hash del WIM. Después valida el arranque en la laptop con Secure Boot.
 
 Durante DISM y la grabación no se fuerza la cancelación. Cerrar la ventana solicita esperar el fin de la etapa. El firmware debe confiar en UEFI CA 2023; la app no modifica certificados ni desactiva Secure Boot. Véase [la creación de medios de Microsoft](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/winpe-create-usb-bootable-drive?view=windows-11).
+
+Para validar, `scripts/prepare_secureboot_vm.py` crea una VM nueva y aislada que confía exclusivamente en Windows UEFI CA 2023. `scripts/Run-SecureBootValidation.ps1` arranca una ISO de validación y exige evidencia nativa por puerto serie de WinPE, Secure Boot activo, GUI iniciada y proveedor BitLocker disponible. No cambia el firmware del equipo anfitrión. Las pruebas físicas siguen el [protocolo de hardware](docs/HARDWARE-TESTING.md).
 
 ## Límites de los respaldos
 

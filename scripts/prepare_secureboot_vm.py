@@ -44,15 +44,15 @@ def prepare(vbox, directory, certificate_path, memory):
     db_path = directory / "db-original.esl"
     call("modifynvram", name, "queryvar", "--name=db", "--filename=" + str(db_path))
     certificate = pathlib.Path(certificate_path).read_bytes()
-    database = db_path.read_bytes()
-    if certificate not in database:
-        database += signature_list(certificate)
+    # Restrict this disposable fixture to Windows UEFI CA 2023. A 2011-only loader must fail.
+    database = signature_list(certificate)
     combined = directory / "db-with-windows-2023.esl"
     combined.write_bytes(database)
     call("modifynvram", name, "changevar", "--name=db", "--filename=" + str(combined))
     call("modifynvram", name, "secureboot", "--enable")
     config = {"schema_version": 1, "name": name, "vbox": str(vbox), "directory": str(directory), "memory_mb": memory,
               "network": "disabled", "host_disks_attached": False, "host_firmware_modified": False,
+              "db_trust": "windows_uefi_2023_only",
               "windows_uefi_2023_cert_sha256": hashlib.sha256(certificate).hexdigest(), "guest_boot_validated": False}
     (directory / "vm.json").write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
     return config
